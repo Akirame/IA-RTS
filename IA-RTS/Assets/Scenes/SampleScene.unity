@@ -144,8 +144,8 @@ MonoBehaviour:
   nodito: {fileID: 170188515}
   noditoObs: {fileID: 1908433117}
   startPos: {fileID: 1065378053}
-  heightMap: 2
-  widthMap: 2
+  heightMap: 10
+  widthMap: 16
   granularity: 1
   rayMask:
     serializedVersion: 2

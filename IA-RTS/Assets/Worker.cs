@@ -16,6 +16,8 @@ public class Worker : MonoBehaviour {
     public Mine mine;
     public Town town;
     public int goldInHands;
+    public NodeManager nodeManager;
+    public List<Node> pathTownToMine;
 
     // Use this for initialization
     void Start () {
@@ -81,6 +83,12 @@ public class Worker : MonoBehaviour {
             fsm.SendEvent((int)Events.TownReached);
         }
     }
+
+    private void MoveOnPath()
+    {
+
+    }
+
 
     private void Mining()
     {

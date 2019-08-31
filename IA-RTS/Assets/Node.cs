@@ -9,6 +9,9 @@ public class Node
     public Vector2 pos;
     public bool obstacle = false;
     public List<Node> adjacents;
+    public Node parent;
+    public int cost;
+    public int totalCost;
 
     public Node(Vector2 _pos, bool _obst)
     {

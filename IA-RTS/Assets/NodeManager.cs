@@ -6,7 +6,6 @@ using UnityEngine;
 public class NodeManager : MonoBehaviour
 {
     public List<Node> nodes;
-    public List<Node> openNodes;
     public GameObject nodito;
     public GameObject noditoObs;
     public Transform startPos;
@@ -16,6 +15,9 @@ public class NodeManager : MonoBehaviour
     public LayerMask rayMask;
     public LayerMask nodeMask;
     public bool instanceDebug = false;
+    public Pathfinder pathfinder = new Pathfinder();
+    List<Node> path = new List<Node>();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +36,7 @@ public class NodeManager : MonoBehaviour
         {
             for (int j = 0; j < widthNodeCount; j++)
             {
-                RaycastHit hit;                
+                RaycastHit hit;
                 if (Physics.Raycast(startPos.position + new Vector3(j* distWidth, i* distHeight, -1), Vector3.forward,out hit, 3, rayMask))
                 {
                     Node node;
@@ -54,6 +56,7 @@ public class NodeManager : MonoBehaviour
             }
         }
     }
+
     private void LinkNodes()
     {
 
@@ -69,29 +72,42 @@ public class NodeManager : MonoBehaviour
                     if (dist <= (1.0f * distWidth))
                     {
                         if (!Physics.Raycast(node.pos, (nodeAdj.pos - node.pos).normalized, dist, nodeMask))
-                            node.adjacents.Add(nodeAdj);                        
+                            node.adjacents.Add(nodeAdj);
                     }
                 }
             }
-            print(node.adjacents.Count);
         }
     }
+
     private void Update()
     {
-        if (Input.anyKeyDown)
+        if (Input.GetKey(KeyCode.UpArrow))
         {
-            print(nodes[0].adjacents.Count);
+            path = pathfinder.GetPath(nodes[0], nodes[9]);
+            foreach (Node node in path)
+            {
+                print(node.pos);
+            }
         }
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(startPos.position, startPos.position + Vector3.right * widthMap);
-        Gizmos.DrawLine(startPos.position, startPos.position + Vector3.up * heightMap);                
+        Gizmos.DrawLine(startPos.position, startPos.position + Vector3.up * heightMap);
         Gizmos.DrawLine(startPos.position + new Vector3(0, 0, -1), startPos.position + new Vector3(0, 0, 1) + Vector3.forward * heightMap);
         Gizmos.color = Color.red;
         Gizmos.DrawLine(startPos.position, (startPos.position + Vector3.up * heightMap / heightMap * granularity));
-
+        if (path.Count > 0)
+        {
+            for (int i = 0; i < path.Count; i++)
+            {
+                if (i + 1 < path.Count)
+                {
+                    Gizmos.DrawLine((Vector3)path[i].pos + new Vector3(0,0,-3), (Vector3)path[i + 1].pos + new Vector3(0, 0, -3));
+                }
+            }
+        }
     }
 
 }
