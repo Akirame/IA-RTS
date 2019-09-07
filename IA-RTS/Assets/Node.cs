@@ -13,11 +13,12 @@ public class Node
     public int cost;
     public int totalCost;
 
-    public Node(Vector2 _pos, bool _obst)
+    public Node(Vector2 _pos, bool _obst, int _cost)
     {
         pos = _pos;
         obstacle = _obst;
         adjacents = new List<Node>();
+        cost = _cost;
     }
 
 }

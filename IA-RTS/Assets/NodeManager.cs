@@ -8,6 +8,7 @@ public class NodeManager : MonoBehaviour
     public List<Node> nodes;
     public GameObject nodito;
     public GameObject noditoObs;
+    public GameObject noditoPosDebug;
     public Transform startPos;
     public float heightMap;
     public float widthMap;
@@ -16,6 +17,7 @@ public class NodeManager : MonoBehaviour
     public LayerMask nodeMask;
     public bool instanceDebug = false;
     public Pathfinder pathfinder = new Pathfinder();
+    public bool linkDiagonals = false;
     List<Node> path = new List<Node>();
 
     // Start is called before the first frame update
@@ -23,6 +25,12 @@ public class NodeManager : MonoBehaviour
     {
         CreateNodes();
         LinkNodes();
+        SetNodesToPathfinder();
+    }
+
+    private void SetNodesToPathfinder()
+    {
+        pathfinder.SetNodes(nodes);
     }
 
     private void CreateNodes()
@@ -41,9 +49,9 @@ public class NodeManager : MonoBehaviour
                 {
                     Node node;
                     if (hit.transform.tag == "Ground")
-                        node = new Node(hit.point, false);
+                        node = new Node(hit.point, false, 1);
                     else
-                        node = new Node(hit.point, true);
+                        node = new Node(hit.point, true, 1);
                     if (instanceDebug)
                     {
                         if (!node.obstacle)
@@ -59,9 +67,10 @@ public class NodeManager : MonoBehaviour
 
     private void LinkNodes()
     {
-
         int widthNodeCount = (int)widthMap * granularity;
         float distWidth = widthMap / widthNodeCount;
+        if (linkDiagonals)
+            distWidth = Mathf.Sqrt(2 * (distWidth * distWidth));
         foreach (var node in nodes)
         {
             foreach (var nodeAdj in nodes)
@@ -79,11 +88,22 @@ public class NodeManager : MonoBehaviour
         }
     }
 
+    public List<Vector2> GetPathBetweenPos(Vector2 pos1, Vector2 pos2)
+    {
+        Node node1 = pathfinder.GetClosestTo(pos1);
+        Node node2 = pathfinder.GetClosestTo(pos2);
+        if (node1 != null)
+            Instantiate(noditoPosDebug, node1.pos, Quaternion.identity);
+        if (node2 != null)
+            Instantiate(noditoPosDebug, node2.pos, Quaternion.identity);
+        return pathfinder.GetPathBetweenPos(pos1, pos2);
+    }
+
     private void Update()
     {
         if (Input.GetKey(KeyCode.UpArrow))
         {
-            path = pathfinder.GetPath(nodes[0], nodes[9]);
+            path = pathfinder.GetPath(nodes[0], nodes[143]);
             foreach (Node node in path)
             {
                 print(node.pos);

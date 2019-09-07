@@ -16,8 +16,10 @@ public class Worker : MonoBehaviour {
     public Mine mine;
     public Town town;
     public int goldInHands;
+    public List<Vector2> pathToWalk = new List<Vector2>();
     public NodeManager nodeManager;
-    public List<Node> pathTownToMine;
+    public bool zarlanga = false;
+    public LayerMask rayMask;
 
     // Use this for initialization
     void Start () {
@@ -30,10 +32,10 @@ public class Worker : MonoBehaviour {
         fsm.SetRelation((int)States.DepositGold, (int)States.Idle, (int)Events.GoldDeposited);
         fsm.SendEvent((int)States.Idle);
     }
-	
-	// Update is called once per frame
-	void Update () {
-        switch ((States)fsm.GetState())
+
+    // Update is called once per frame
+    void Update() {
+        /*switch ((States)fsm.GetState())
         {
             case States.GoToMine:
                 GoToMine();
@@ -52,7 +54,18 @@ public class Worker : MonoBehaviour {
                 break;
             default:
                 break;
+        }*/
+        if (Input.GetMouseButtonDown(0) && pathToWalk.Count <= 0)
+        {
+            RaycastHit hit;            
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit, 100.0f, rayMask))
+            {
+                pathToWalk = nodeManager.GetPathBetweenPos(transform.position, hit.point);
+                pathToWalk.Reverse();
+            }
         }
+        MoveOnPath();
     }
 
     private void DepositGold()
@@ -61,6 +74,7 @@ public class Worker : MonoBehaviour {
         goldInHands = 0;
         fsm.SendEvent((int)Events.GoldDeposited);
     }
+
 
     private void Idle()
     {
@@ -77,7 +91,7 @@ public class Worker : MonoBehaviour {
     private void GoToTown()
     {
         rd.velocity = (town.transform.position - transform.position).normalized * speed;
-        if (DestinationReached(town.transform))
+        if (DestinationReached(town.transform.position))
         {
             rd.velocity = Vector2.zero;
             fsm.SendEvent((int)Events.TownReached);
@@ -86,9 +100,20 @@ public class Worker : MonoBehaviour {
 
     private void MoveOnPath()
     {
-
+        if (pathToWalk.Count > 0)
+        {
+            if (!DestinationReached(pathToWalk[0]))
+            {
+                rd.velocity = (pathToWalk[0] - (Vector2)transform.position).normalized * speed;
+            }
+            else
+            {
+                pathToWalk.RemoveAt(0);
+            }
+        }
+        else
+            rd.velocity = Vector2.zero;
     }
-
 
     private void Mining()
     {
@@ -103,16 +128,16 @@ public class Worker : MonoBehaviour {
 
     private void GoToMine()
     {
-        rd.velocity = (mine.transform.position - transform.position).normalized * speed;
-        if (DestinationReached(mine.transform))
+        MoveOnPath();
+        if (pathToWalk.Count <= 0)
         {
             fsm.SendEvent((int)Events.MineReached);
             rd.velocity = Vector2.zero;
         }
     }
 
-    private bool DestinationReached(Transform destination)
+    private bool DestinationReached(Vector3 destination)
     {
-        return Vector2.Distance(transform.position, destination.transform.position) < 1;
+        return Vector2.Distance(transform.position, destination) < 1;
     }
 }
