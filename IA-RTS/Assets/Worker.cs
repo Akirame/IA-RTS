@@ -57,7 +57,7 @@ public class Worker : MonoBehaviour {
         }*/
         if (Input.GetMouseButtonDown(0) && pathToWalk.Count <= 0)
         {
-            RaycastHit hit;            
+            RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 100.0f, rayMask))
             {
