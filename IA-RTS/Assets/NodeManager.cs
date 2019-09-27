@@ -19,6 +19,7 @@ public class NodeManager : MonoBehaviour
     public Pathfinder pathfinder = new Pathfinder();
     public bool linkDiagonals = false;
     List<Node> path = new List<Node>();
+    public List<object> zarlanga = new List<object>();
 
     // Start is called before the first frame update
     void Start()
@@ -105,9 +106,11 @@ public class NodeManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow) && zarlanga.Count <= 0)
         {
-            pathfinder.InitializeGraph();
+            zarlanga = pathfinder.InitializeGraph();
+            var totalCost = (Dictionary<Node,int>)zarlanga[0];
+
         }
     }
 

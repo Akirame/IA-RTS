@@ -155,7 +155,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   instanceDebug: 1
-  linkDiagonals: 1
+  linkDiagonals: 0
 --- !u!4 &31263478
 Transform:
   m_ObjectHideFlags: 0

@@ -6,15 +6,16 @@ using UnityEngine;
 
 public class Pathfinder
 {
-    public enum PathFindingType { Breath = 0, Depth , Dijkstra};
+    public enum PathFindingType { Breath = 0, Depth, Dijkstra };
     public PathFindingType findingPath = PathFindingType.Breath;
     public List<Node> openNodes = new List<Node>();
     public List<Node> closedNodes = new List<Node>();
     public List<Node> nodeList = new List<Node>();
 
-    public void InitializeGraph()
+    public List<object> InitializeGraph()
     {
         List<object> zarlanga = Dijkstra(nodeList, nodeList[0]);
+        return zarlanga;
     }
 
     public List<Node> GetPath(Node source, Node destination)
@@ -23,7 +24,7 @@ public class Pathfinder
         OpenNode(source, null);
         while (openNodes.Count > 0 && path.Count <= 0)
         {
-            Node node = VisitNode();
+            Node node = VisitNode(destination);
             if (node == destination)
             {
                 path = ReturnPath(node);
@@ -133,7 +134,7 @@ public class Pathfinder
         }
     }
 
-    private Node VisitNode()
+    private Node VisitNode(Node destination)
     {
         switch (findingPath)
         {
@@ -179,7 +180,7 @@ public class Pathfinder
         List<Node> visitedNodes = new List<Node>();
 
         totalCosts.Add(start, 0);
-        minPQ.Add(new NodePriority(start,0));
+        minPQ.Add(new NodePriority(start, 0));
 
         foreach (Node node in nodeList)
         {
