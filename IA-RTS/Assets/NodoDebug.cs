@@ -11,6 +11,6 @@ public class NodoDebug : MonoBehaviour
     public void SetCost(int cost)
     {
         this.cost = cost;
-        sr.color = colorRamp.Evaluate(cost * 0.1f);
+        sr.color = colorRamp.Evaluate(cost * 0.01f);
     }
 }

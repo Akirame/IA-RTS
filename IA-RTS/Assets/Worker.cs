@@ -140,4 +140,17 @@ public class Worker : MonoBehaviour {
     {
         return Vector2.Distance(transform.position, destination) < 1;
     }
+
+    private void OnDrawGizmos()
+    {
+        if (pathToWalk.Count > 0)
+        {
+            for (int i = 0; i < pathToWalk.Count; i++)
+            {
+                if (i + 1 < pathToWalk.Count)
+                    Gizmos.DrawLine(pathToWalk[i], pathToWalk[i + 1]);
+            }
+        }
+    }
+
 }

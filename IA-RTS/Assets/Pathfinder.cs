@@ -6,17 +6,11 @@ using UnityEngine;
 
 public class Pathfinder
 {
-    public enum PathFindingType { Breath = 0, Depth, Dijkstra };
-    public PathFindingType findingPath = PathFindingType.Breath;
+    public enum PathFindingType { Breath = 0, Depth, Dijkstra , Astar};
+    public PathFindingType findingPath = PathFindingType.Dijkstra;
     public List<Node> openNodes = new List<Node>();
     public List<Node> closedNodes = new List<Node>();
     public List<Node> nodeList = new List<Node>();
-
-    public List<object> InitializeGraph()
-    {
-        List<object> zarlanga = Dijkstra(nodeList, nodeList[0]);
-        return zarlanga;
-    }
 
     public List<Node> GetPath(Node source, Node destination)
     {
@@ -134,7 +128,7 @@ public class Pathfinder
         }
     }
 
-    private Node VisitNode(Node destination)
+    private Node VisitNode(Node endNode)
     {
         switch (findingPath)
         {
@@ -143,10 +137,49 @@ public class Pathfinder
             case PathFindingType.Depth:
                 return openNodes[openNodes.Count - 1];
             case PathFindingType.Dijkstra:
-                return null;
+                return openNodes[Dijkstra(openNodes, endNode)];
+            case PathFindingType.Astar:
+                return openNodes[Astar(openNodes, endNode)];
             default:
                 return null;
         }
+    }
+
+    private int Astar(List<Node> openNodes, Node endNode)
+    {
+        int min = int.MaxValue;
+        int idx = 0;
+        for (int i = 0; i < openNodes.Count; i++)
+        {
+            int cost = Cost(openNodes[i].parent, openNodes[i]) + Heuristica(openNodes[i], endNode);
+            if (cost < min)
+            {
+                min = cost;
+                idx = i;
+            }
+        }
+        return idx;
+    }
+
+    private int Dijkstra(List<Node> openNodes, Node endNode)
+    {
+        int min = int.MaxValue;
+        int idx = 0;
+        for (int i = 0; i < openNodes.Count; i++)
+        {
+            int cost = Cost(openNodes[i].parent, openNodes[i]) + NodeDistance(openNodes[i], endNode);
+            if (cost < min)
+            {
+                min = cost;
+                idx = i;
+            }
+        }
+        return idx;
+    }
+
+    private int Cost(Node startNode, Node neighbor)
+    {
+        return Mathf.Abs(neighbor.cost + neighbor.cost);
     }
 
     private void OpenNode(Node source, Node parent)
@@ -159,71 +192,13 @@ public class Pathfinder
         }
     }
 
-    private class NodePriority
+    private int Heuristica(Node neighbor, Node endNode)
     {
-        public Node node;
-        public int cost;
-
-        public NodePriority(Node node, int cost)
-        {
-            this.node = node;
-            this.cost = cost;
-        }
-
+        return (int)(Math.Abs(endNode.pos.x - neighbor.pos.x) + Math.Abs(endNode.pos.y - neighbor.pos.y));
     }
 
-    private List<object> Dijkstra(List<Node> nodeList, Node start)
+    private int NodeDistance(Node neighbor, Node endNode)
     {
-        Dictionary<Node, int> totalCosts = new Dictionary<Node, int>();
-        Dictionary<Node, Node> prevNodes = new Dictionary<Node, Node>();
-        List<NodePriority> minPQ = new List<NodePriority>();
-        List<Node> visitedNodes = new List<Node>();
-
-        totalCosts.Add(start, 0);
-        minPQ.Add(new NodePriority(start, 0));
-
-        foreach (Node node in nodeList)
-        {
-            if (node != start)
-            {
-                totalCosts.Add(node, int.MaxValue);
-            }
-        }
-
-        while (minPQ.Count > 0)
-        {
-            Node newSmall = minPQ[0].node;
-            minPQ.RemoveAt(0);
-            visitedNodes.Add(newSmall);
-            foreach (Node neighbor in newSmall.adjacents)
-            {
-                if (!visitedNodes.Contains(neighbor))
-                {
-                    int altPath = totalCosts[newSmall] + nodeDistance(newSmall, neighbor);
-                    if (altPath < totalCosts[neighbor])
-                    {
-                        totalCosts[neighbor] = altPath;
-                        prevNodes.Add(neighbor, newSmall);
-                        foreach (NodePriority nodeP in minPQ)
-                        {
-                            if (nodeP.node == neighbor)
-                            {
-                                nodeP.cost = altPath;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        List<object> results = new List<object>();
-        results.Add(totalCosts);
-        results.Add(prevNodes);
-        return results;
-    }
-
-    private int nodeDistance(Node newSmall, Node neighbor)
-    {
-        return Mathf.Abs(neighbor.cost - newSmall.cost);
+        return (int)Vector2.Distance(neighbor.pos, endNode.pos);
     }
 }

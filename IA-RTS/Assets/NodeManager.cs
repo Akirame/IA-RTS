@@ -49,7 +49,7 @@ public class NodeManager : MonoBehaviour
                 if (Physics.Raycast(startPos.position + new Vector3(j* distWidth, i* distHeight, -1), Vector3.forward,out hit, 3, rayMask))
                 {
                     Node node;
-                    int nodeCost = UnityEngine.Random.Range(1, 10);
+                    int nodeCost = UnityEngine.Random.Range(1, 100);
                     if (hit.transform.tag == "Ground")
                         node = new Node(hit.point, false, nodeCost);
                     else
@@ -108,9 +108,6 @@ public class NodeManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.UpArrow) && zarlanga.Count <= 0)
         {
-            zarlanga = pathfinder.InitializeGraph();
-            var totalCost = (Dictionary<Node,int>)zarlanga[0];
-
         }
     }
 
