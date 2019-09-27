@@ -48,14 +48,18 @@ public class NodeManager : MonoBehaviour
                 if (Physics.Raycast(startPos.position + new Vector3(j* distWidth, i* distHeight, -1), Vector3.forward,out hit, 3, rayMask))
                 {
                     Node node;
+                    int nodeCost = UnityEngine.Random.Range(1, 10);
                     if (hit.transform.tag == "Ground")
-                        node = new Node(hit.point, false, 1);
+                        node = new Node(hit.point, false, nodeCost);
                     else
-                        node = new Node(hit.point, true, 1);
+                        node = new Node(hit.point, true, 100);
                     if (instanceDebug)
                     {
                         if (!node.obstacle)
-                            Instantiate(nodito, hit.point, Quaternion.identity);
+                        {
+                            GameObject noDebug = Instantiate(nodito, hit.point, Quaternion.identity);
+                            noDebug.GetComponent<NodoDebug>().SetCost(nodeCost);
+                        }
                         else
                             Instantiate(noditoObs, hit.point, Quaternion.identity);
                     }
@@ -78,7 +82,7 @@ public class NodeManager : MonoBehaviour
                 if (node != nodeAdj)
                 {
                     float dist = Math.Abs(Vector2.Distance(node.pos, nodeAdj.pos));
-                    if (dist <= (1.0f * distWidth))
+                    if (dist <= distWidth)
                     {
                         if (!Physics.Raycast(node.pos, (nodeAdj.pos - node.pos).normalized, dist, nodeMask))
                             node.adjacents.Add(nodeAdj);
@@ -101,13 +105,9 @@ public class NodeManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            path = pathfinder.GetPath(nodes[0], nodes[143]);
-            foreach (Node node in path)
-            {
-                print(node.pos);
-            }
+            pathfinder.InitializeGraph();
         }
     }
 
