@@ -19,7 +19,6 @@ public class NodeManager : MonoBehaviour
     public Pathfinder pathfinder = new Pathfinder();
     public bool linkDiagonals = false;
     List<Node> path = new List<Node>();
-    public List<object> zarlanga = new List<object>();
 
     // Start is called before the first frame update
     void Start()
@@ -49,7 +48,7 @@ public class NodeManager : MonoBehaviour
                 if (Physics.Raycast(startPos.position + new Vector3(j* distWidth, i* distHeight, -1), Vector3.forward,out hit, 3, rayMask))
                 {
                     Node node;
-                    int nodeCost = UnityEngine.Random.Range(1, 100);
+                    int nodeCost = UnityEngine.Random.Range(1, 10);
                     if (hit.transform.tag == "Ground")
                         node = new Node(hit.point, false, nodeCost);
                     else
@@ -106,9 +105,6 @@ public class NodeManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow) && zarlanga.Count <= 0)
-        {
-        }
     }
 
     private void OnDrawGizmos()

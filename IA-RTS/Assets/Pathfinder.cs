@@ -151,7 +151,7 @@ public class Pathfinder
         int idx = 0;
         for (int i = 0; i < openNodes.Count; i++)
         {
-            int cost = Cost(openNodes[i].parent, openNodes[i]) + Heuristica(openNodes[i], endNode);
+            int cost = Cost(openNodes[i].parent, openNodes[i]) + NodeDistance(openNodes[i], endNode);
             if (cost < min)
             {
                 min = cost;
@@ -167,7 +167,7 @@ public class Pathfinder
         int idx = 0;
         for (int i = 0; i < openNodes.Count; i++)
         {
-            int cost = Cost(openNodes[i].parent, openNodes[i]) + NodeDistance(openNodes[i], endNode);
+            int cost = openNodes[i].cost + Cost(openNodes[i].parent, openNodes[i]);
             if (cost < min)
             {
                 min = cost;
@@ -179,7 +179,7 @@ public class Pathfinder
 
     private int Cost(Node startNode, Node neighbor)
     {
-        return Mathf.Abs(neighbor.cost + neighbor.cost);
+        return Mathf.Abs(neighbor.cost - neighbor.cost);
     }
 
     private void OpenNode(Node source, Node parent)
@@ -190,11 +190,6 @@ public class Pathfinder
             source.parent = parent;
             source.state = Node.NodeState.Open;
         }
-    }
-
-    private int Heuristica(Node neighbor, Node endNode)
-    {
-        return (int)(Math.Abs(endNode.pos.x - neighbor.pos.x) + Math.Abs(endNode.pos.y - neighbor.pos.y));
     }
 
     private int NodeDistance(Node neighbor, Node endNode)
