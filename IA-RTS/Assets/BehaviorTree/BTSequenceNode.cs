@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class BTSequenceNode : BTNodeWithChildren
 {
+    public BTSequenceNode()
+    {
+    }
 
     public BTSequenceNode(List<BTNode> nodeList)
     {
         childNodes = nodeList;
     }
+        
 
     public override NodeStates Evaluate()
-    {
-        bool anyChildRunning = false;
+    {        
 
         foreach (BTNode node in childNodes)
         {
@@ -22,16 +25,16 @@ public class BTSequenceNode : BTNodeWithChildren
                     nodeState = NodeStates.Fail;
                     return nodeState;
                 case NodeStates.Success:
+                    nodeState = NodeStates.Success;
                     continue;
                 case NodeStates.Running:
-                    anyChildRunning = true;
-                    continue;
+                    nodeState = NodeStates.Running;
+                    return nodeState;
                 default:
                     nodeState = NodeStates.Success;
                     return nodeState;
-            }
+            }            
         }
-        nodeState = anyChildRunning ? NodeStates.Running : NodeStates.Success;
         return nodeState;
     }
 

@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class BTConditionNode : BTNode
 {
+    public delegate bool BTConditionDelegate();
+    public BTConditionDelegate Condition;
 
-    public bool condition;
-
+    public BTConditionNode(BTConditionDelegate _condition)
+    {
+        Condition += _condition;
+    }
+    
     public override NodeStates Evaluate()
     {
-        if (condition)
+        if (Condition())
         {
             nodeState = NodeStates.Success;
         }

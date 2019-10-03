@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public abstract class BTNode
 {
     public enum NodeStates {None, Running, Success, Fail}

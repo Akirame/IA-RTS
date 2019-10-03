@@ -11,15 +11,19 @@ public class Worker : MonoBehaviour {
     public Rigidbody2D rd;
     public float speed;
     public float miningTime;
-    private float miningTimer = 0;
+    private float miningTimer = 0f;
+    public float depositTime = 3f;
+    private float depositTimer = 0f;
     public int mineAmount;
     public Mine mine;
     public Town town;
     public int goldInHands;
+    public bool handsEmpty = true;
     public List<Vector2> pathToWalk = new List<Vector2>();
     public NodeManager nodeManager;
-    public bool zarlanga = false;
     public LayerMask rayMask;
+    public BTSelectorNode rootNode = new BTSelectorNode();
+    private WorkerConditions workerConditions;
 
     // Use this for initialization
     void Start () {
@@ -31,6 +35,26 @@ public class Worker : MonoBehaviour {
         fsm.SetRelation((int)States.GoToTown, (int)States.DepositGold, (int)Events.TownReached);
         fsm.SetRelation((int)States.DepositGold, (int)States.Idle, (int)Events.GoldDeposited);
         fsm.SendEvent((int)States.Idle);
+
+        workerConditions = new WorkerConditions(this);
+        BTConditionNode hasGoldNode = new BTConditionNode(workerConditions.HasMaxGold);
+
+        BTSequenceNode miningNode = new BTSequenceNode();
+        BTActionNode goToMineAction = new BTActionNode(GoToMine);
+        BTActionNode miningAction = new BTActionNode(Mining);
+        miningNode.AddChild(hasGoldNode);
+        miningNode.AddChild(goToMineAction);
+        miningNode.AddChild(miningAction);
+
+        BTSequenceNode backToTownNode = new BTSequenceNode();
+        BTActionNode goToTownAction = new BTActionNode(GoToTown);
+        BTActionNode depositGoldAction = new BTActionNode(DepositGold);
+        backToTownNode.AddChild(goToTownAction);
+        backToTownNode.AddChild(depositGoldAction);
+
+        rootNode.AddChild(miningNode);
+        rootNode.AddChild(backToTownNode);
+
     }
 
     // Update is called once per frame
@@ -55,24 +79,33 @@ public class Worker : MonoBehaviour {
             default:
                 break;
         }*/
-        if (Input.GetMouseButtonDown(0) && pathToWalk.Count <= 0)
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, 100.0f, rayMask))
-            {
-                pathToWalk = nodeManager.GetPathBetweenPos(transform.position, hit.point);
-                pathToWalk.Reverse();
-            }
-        }
-        MoveOnPath();
+        //if (Input.GetMouseButtonDown(0) && pathToWalk.Count <= 0)
+        //{
+        //    RaycastHit hit;
+        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //    if (Physics.Raycast(ray, out hit, 100.0f, rayMask))
+        //    {
+        //        pathToWalk = nodeManager.GetPathBetweenPos(transform.position, hit.point);
+        //        pathToWalk.Reverse();
+        //    }
+        //}
+        //MoveOnPath();
+        rootNode.Evaluate();
     }
 
-    private void DepositGold()
+    private BTNode.NodeStates DepositGold()
     {
-        town.DepositGold(goldInHands);
-        goldInHands = 0;
-        fsm.SendEvent((int)Events.GoldDeposited);
+        BTNode.NodeStates state = BTNode.NodeStates.Running;
+        depositTimer += Time.deltaTime;
+        if(depositTimer >= depositTime)
+        {
+            town.DepositGold(goldInHands);
+            goldInHands = 0;
+            handsEmpty = true;
+            fsm.SendEvent((int)Events.GoldDeposited);
+            state = BTNode.NodeStates.Success;
+        }
+        return state;
     }
 
 
@@ -88,14 +121,17 @@ public class Worker : MonoBehaviour {
         }
     }
 
-    private void GoToTown()
+    private BTNode.NodeStates GoToTown()
     {
+        BTNode.NodeStates state = BTNode.NodeStates.Running;
         rd.velocity = (town.transform.position - transform.position).normalized * speed;
         if (DestinationReached(town.transform.position))
         {
             rd.velocity = Vector2.zero;
             fsm.SendEvent((int)Events.TownReached);
+            state = BTNode.NodeStates.Success;
         }
+        return state;
     }
 
     private void MoveOnPath()
@@ -115,25 +151,38 @@ public class Worker : MonoBehaviour {
             rd.velocity = Vector2.zero;
     }
 
-    private void Mining()
+    private BTNode.NodeStates Mining()
     {
+        BTNode.NodeStates state = BTNode.NodeStates.Running;
         miningTimer += Time.deltaTime;
         if (miningTimer >= miningTime)
         {
             miningTimer = 0;
             goldInHands = mine.MineGold(mineAmount);
             fsm.SendEvent((int)Events.MiningTimeOut);
+            handsEmpty = false;
+            state = BTNode.NodeStates.Success;
         }
+        return state;
     }
 
-    private void GoToMine()
+    private BTNode.NodeStates GoToMine()
     {
-        MoveOnPath();
-        if (pathToWalk.Count <= 0)
+        BTNode.NodeStates state = BTNode.NodeStates.Running;
+        //MoveOnPath();
+        //if (pathToWalk.Count <= 0)
+        //{
+        //    fsm.SendEvent((int)Events.MineReached);
+        //    rd.velocity = Vector2.zero;
+        //}
+        rd.velocity = (mine.transform.position - transform.position).normalized * speed;
+        if(DestinationReached(mine.transform.position))
         {
             fsm.SendEvent((int)Events.MineReached);
             rd.velocity = Vector2.zero;
+            state = BTNode.NodeStates.Success;
         }
+        return state;
     }
 
     private bool DestinationReached(Vector3 destination)

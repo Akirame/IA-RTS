@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class BTSelectorNode : BTNodeWithChildren
 {
+    public BTSelectorNode()
+    {
+    }
+
     public BTSelectorNode(List<BTNode> childList)
     {
         childNodes = childList;
@@ -16,6 +20,7 @@ public class BTSelectorNode : BTNodeWithChildren
             switch (node.Evaluate())
             {
                 case NodeStates.Fail:
+                    nodeState = NodeStates.Fail;
                     continue;
                 case NodeStates.Success:
                     nodeState = NodeStates.Success;
@@ -24,10 +29,10 @@ public class BTSelectorNode : BTNodeWithChildren
                     nodeState = NodeStates.Running;
                     return nodeState;
                 default:
-                    continue;
-            }
+                    nodeState = NodeStates.Success;
+                    return nodeState;
+            }            
         }
-        nodeState = NodeStates.Fail;
         return nodeState;
     }
 
