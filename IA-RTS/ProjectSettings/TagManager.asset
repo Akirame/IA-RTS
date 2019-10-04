@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Ground
   - Obstacle
+  - Unit
+  - Construction
+  - Building
   layers:
   - Default
   - TransparentFX
@@ -17,7 +20,7 @@ TagManager:
   - 
   - Grass
   - Obstacle
-  - 
+  - Interactables
   - 
   - 
   - 

@@ -19,13 +19,14 @@ public class FSM {
         }
     }
 
-    public void SetRelation(int _srcState, int _dstState, int _event){
+    public void SetRelation(int _srcState, int _dstState, int _event)
+    {
         fsmMatrix[_srcState, _event] = _dstState;
     }
 
     public void SendEvent(int _event)
     {
-        if (fsmMatrix[currentState,_event] != -1)
+        if (fsmMatrix[currentState, _event] != -1)
         {
             currentState = fsmMatrix[currentState, _event];
         }

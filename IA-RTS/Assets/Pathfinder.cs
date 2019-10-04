@@ -7,7 +7,7 @@ using UnityEngine;
 public class Pathfinder
 {
     public enum PathFindingType { Breath = 0, Depth, Dijkstra , Astar};
-    public PathFindingType findingPath = PathFindingType.Dijkstra;
+    public PathFindingType findingPath = PathFindingType.Astar;
     public List<Node> openNodes = new List<Node>();
     public List<Node> closedNodes = new List<Node>();
     public List<Node> nodeList = new List<Node>();

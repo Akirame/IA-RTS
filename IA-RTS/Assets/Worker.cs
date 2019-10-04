@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Worker : MonoBehaviour {
+public class Worker : Unit {
 
     public FSM fsm;
     public enum States {GoToMine = 0, Mining, GoToTown, DepositGold, Idle}
     public enum Events {HasGold = 0, MineReached, EmptyGold, MiningTimeOut, TownReached, GoldDeposited}
-    public Rigidbody2D rd;
+    public Rigidbody rd;
     public float speed;
     public float miningTime;
     private float miningTimer = 0f;
@@ -100,6 +100,7 @@ public class Worker : MonoBehaviour {
         if(depositTimer >= depositTime)
         {
             town.DepositGold(goldInHands);
+            depositTimer = 0;
             goldInHands = 0;
             handsEmpty = true;
             fsm.SendEvent((int)Events.GoldDeposited);
@@ -124,8 +125,9 @@ public class Worker : MonoBehaviour {
     private BTNode.NodeStates GoToTown()
     {
         BTNode.NodeStates state = BTNode.NodeStates.Running;
-        rd.velocity = (town.transform.position - transform.position).normalized * speed;
-        if (DestinationReached(town.transform.position))
+        GetPathTo(town.gameObject);
+        MoveOnPath();
+        if (DestinationReached(town.transform.position) || pathToWalk.Count == 0)
         {
             rd.velocity = Vector2.zero;
             fsm.SendEvent((int)Events.TownReached);
@@ -169,20 +171,24 @@ public class Worker : MonoBehaviour {
     private BTNode.NodeStates GoToMine()
     {
         BTNode.NodeStates state = BTNode.NodeStates.Running;
-        //MoveOnPath();
-        //if (pathToWalk.Count <= 0)
-        //{
-        //    fsm.SendEvent((int)Events.MineReached);
-        //    rd.velocity = Vector2.zero;
-        //}
-        rd.velocity = (mine.transform.position - transform.position).normalized * speed;
-        if(DestinationReached(mine.transform.position))
+        GetPathTo(mine.gameObject);
+        MoveOnPath();
+        if(DestinationReached(mine.transform.position) || pathToWalk.Count == 0)
         {
             fsm.SendEvent((int)Events.MineReached);
             rd.velocity = Vector2.zero;
             state = BTNode.NodeStates.Success;
         }
         return state;
+    }
+
+    private void GetPathTo(GameObject destination)
+    {
+        if (pathToWalk.Count == 0)
+        {
+            pathToWalk = nodeManager.GetPathBetweenPos(transform.position, destination.transform.position);
+            pathToWalk.Reverse();
+        }
     }
 
     private bool DestinationReached(Vector3 destination)

@@ -96,10 +96,13 @@ public class NodeManager : MonoBehaviour
     {
         Node node1 = pathfinder.GetClosestTo(pos1);
         Node node2 = pathfinder.GetClosestTo(pos2);
-        if (node1 != null)
-            Instantiate(noditoPosDebug, node1.pos, Quaternion.identity);
-        if (node2 != null)
-            Instantiate(noditoPosDebug, node2.pos, Quaternion.identity);
+        if (instanceDebug)
+        {
+            if (node1 != null)
+                Instantiate(noditoPosDebug, node1.pos, Quaternion.identity);
+            if (node2 != null)
+                Instantiate(noditoPosDebug, node2.pos, Quaternion.identity);
+        }
         return pathfinder.GetPathBetweenPos(pos1, pos2);
     }
 
