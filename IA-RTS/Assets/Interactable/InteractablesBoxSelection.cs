@@ -15,13 +15,13 @@ public class InteractablesBoxSelection : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (unitList.Count < 0)
+            Destroy(this.gameObject);
         endTimer += Time.deltaTime;
         if (endTimer > endTime)
         {
             foreach (Unit unit in unitList)
-            {
-                unit.SetSelection(true);
-            }
+                unit.SetSelected(true);
             map.SetUnitsSelected(unitList);
             Destroy(this.gameObject);
         }

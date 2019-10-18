@@ -12,7 +12,7 @@ public class Unit : MonoBehaviour
     public string unitProf;
     public string unitHand;
 
-    public void SetSelection(bool val)
+    public void SetSelected(bool val)
     {
         selected = val;
     }
