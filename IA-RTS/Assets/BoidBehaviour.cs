@@ -64,16 +64,20 @@ public class BoidBehaviour : MonoBehaviour
             cohesion += t.position;
         }
 
-        var avg = 1.0f / nearbyBoids.Length;
-        alignment *= avg;
-        cohesion *= avg;
-        cohesion = (cohesion - currentPosition).normalized;
+        if(nearbyBoids.Length > 0)
+        { 
+            var avg = 1.0f / nearbyBoids.Length;
+            alignment *= avg;
+            cohesion *= avg;
+            cohesion = (cohesion - currentPosition).normalized;
+        }
         // Calculates a rotation from the vectors.
         directionToPoint = (pivot - transform.position).normalized;
         var direction = (Vector3)directionToPoint + separation + alignment + cohesion;
+        pivot = direction;
         print(alignment+","+ cohesion+"," + separation+"," + direction);
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        var rotation = Quaternion.AngleAxis(angle + 90, Vector3.forward);
 
         // Applys the rotation with interpolation.
         if (rotation != currentRotation)
